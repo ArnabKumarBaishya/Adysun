@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Dog API Example</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-light">
+
+<div class="container text-center mt-5">
+    <h1 class="mb-4">Random Dog Image</h1>
+    <button id="getDog" class="btn btn-warning mb-4">Get Dog</button>
+    <div id="dogCard" class="card mx-auto shadow" style="width: 20rem; display: none;">
+        <img id="dogImage" class="card-img-top" alt="Dog Image">
+        <div class="card-body">
+            <p class="card-text">Here's a cute dog for you!</p>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+$(document).ready(function () {
+    $("#getDog").click(function () {
+        $.getJSON("https://dog.ceo/api/breeds/image/random", function (data) {
+            $("#dogImage").attr("src", data.message);
+            $("#dogCard").show();
+        }).fail(function () {
+            alert("Error fetching dog image!");
+        });
+    });
+});
+</script>
+
+</body>
+</html>
