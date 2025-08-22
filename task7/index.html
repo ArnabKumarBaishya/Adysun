@@ -2,27 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Random Advice</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TVMaze Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="bg-light p-5">
 
-<div class="container text-center mt-5">
-  <h1 class="mb-4">💡 Random Advice Generator</h1>
-  <button id="getAdvice" class="btn btn-success mb-4">Get Advice</button>
-  <div id="adviceContainer" class="fs-4 fw-bold text-primary"></div>
-</div>
+  <div class="container">
+    <h2 class="text-center text-primary mb-4">📺 TV Show Search (TVMaze API)</h2>
+    
+    <!-- Search Form -->
+    <div class="input-group mb-4">
+      <input type="text" id="showInput" class="form-control" placeholder="Enter TV show name... (eg batman)">
+      <button id="searchBtn" class="btn btn-success">Search</button>
+    </div>
 
-<script>
-$(document).ready(function(){
-  $("#getAdvice").click(function(){
-    $.getJSON("https://api.adviceslip.com/advice", function(data){
-      $("#adviceContainer").text(`"${data.slip.advice}"`);
+    <!-- Results -->
+    <div id="results" class="row g-4"></div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      $("#searchBtn").click(function(){
+        let query = $("#showInput").val().trim();
+        if(query === ""){
+          alert("Please enter a show name");
+          return;
+        }
+
+        $("#results").html("<p class='text-center text-muted'>Searching...</p>");
+
+        $.getJSON(`https://api.tvmaze.com/search/shows?q=${query}`, function(data){
+          $("#results").empty(); // clear old results
+
+          if(data.length === 0){
+            $("#results").html("<p class='text-center text-danger'>No shows found.</p>");
+            return;
+          }
+
+          $.each(data, function(i, item){
+            let show = item.show;
+            let image = show.image ? show.image.medium : "https://via.placeholder.com/210x295?text=No+Image";
+            let summary = show.summary ? show.summary : "No description available.";
+
+            let card = `
+              <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                  <img src="${image}" class="card-img-top" alt="${show.name}">
+                  <div class="card-body">
+                    <h5 class="card-title">${show.name}</h5>
+                    <p class="card-text">${summary}</p>
+                    <a href="${show.url}" target="_blank" class="btn btn-primary btn-sm">More Info</a>
+                  </div>
+                </div>
+              </div>
+            `;
+            $("#results").append(card);
+          });
+        }).fail(function(){
+          $("#results").html("<p class='text-center text-danger'>⚠️ Error fetching data. Try again.</p>");
+        });
+      });
     });
-  });
-});
-</script>
+  </script>
 
 </body>
 </html>
