@@ -1,40 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Quote Generator</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gender Predictor</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .result-card {
+      margin-top: 20px;
+    }
+    #loading {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
+  <div class="container py-5">
+    <h1 class="text-center mb-4">👤 Gender Predictor</h1>
 
-<div class="container text-center mt-5">
-    <h1 class="mb-4">Random Numbers and Associated Facts Generator</h1>
-    <button id="getNumber" class="btn btn-primary mb-4">Action</button>
-    <div id="numberCard" class="card mx-auto shadow" style="width: 30rem; display: none;">
-        <div class="card-body">
-            <p id="num" class="fs-5 fw-semibold"></p>
-            <p id="Fact" class="text-muted fst-italic"></p>
-        </div>
+    <!-- Input Section -->
+    <div class="input-group mb-3">
+      <input type="text" id="nameInput" class="form-control" placeholder="Enter a name...">
+      <button id="predictBtn" class="btn btn-primary">Predict</button>
     </div>
-</div>
 
-<script>
-$(document).ready(function () {
-    $("#getNumber").click(function () {
-        $.getJSON("http://numbersapi.com/random/trivia?json", function (data) {
-            $("#num").text('"' + data.number + '"');
-            $("#Fact").text(data.text);
-            $("#numberCard").show();
+    <!-- Loading Spinner -->
+    <div id="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p>Fetching result...</p>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="result-card"></div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#predictBtn").click(function () {
+        let name = $("#nameInput").val().trim();
+        if (name === "") {
+          alert("Please enter a name!");
+          return;
+        }
+
+        let url = `https://api.genderize.io?name=${name}`;
+
+        // Show loading spinner
+        $("#loading").show();
+        $("#result").empty();
+
+        $.getJSON(url, function (data) {
+          let gender = data.gender ? data.gender : "Not available";
+          let probability = data.probability ? (data.probability * 100).toFixed(1) + "%" : "N/A";
+          let count = data.count ? data.count : "N/A";
+
+          let resultHtml = `
+            <div class="card shadow p-3">
+              <h3 class="card-title text-capitalize">${name}</h3>
+              <p><strong>Predicted Gender:</strong> ${gender}</p>
+              <p><strong>Probability:</strong> ${probability}</p>
+              <p><strong>Data Count:</strong> ${count}</p>
+            </div>
+          `;
+          $("#result").html(resultHtml);
         }).fail(function () {
-            alert("Error fetching quote!");
+          $("#result").html(`
+            <div class="alert alert-danger">❌ Could not fetch data. Try again.</div>
+          `);
+        }).always(function () {
+          // Hide spinner after API response
+          $("#loading").hide();
         });
+      });
     });
-});
-</script>
-
+  </script>
 </body>
 </html>

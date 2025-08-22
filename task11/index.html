@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dictionary App</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+    .result-card {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="text-center mb-4">📖 Dictionary App</h1>
+
+    <!-- Search Input -->
+    <div class="input-group mb-3">
+      <input type="text" id="wordInput" class="form-control" placeholder="Enter a word...">
+      <button id="searchBtn" class="btn btn-primary">Search</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="result-card"></div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#searchBtn").click(function () {
+        let word = $("#wordInput").val().trim();
+        if (word === "") {
+          alert("Please enter a word!");
+          return;
+        }
+
+        let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+
+        $.getJSON(url, function (data) {
+          let meaning = data[0].meanings[0].definitions[0].definition;
+          let phonetic = data[0].phonetic || "Not available";
+          let example = data[0].meanings[0].definitions[0].example || "No example found";
+
+          let resultHtml = `
+            <div class="card shadow p-3">
+              <h3 class="card-title text-capitalize">${word}</h3>
+              <p><strong>Phonetic:</strong> ${phonetic}</p>
+              <p><strong>Meaning:</strong> ${meaning}</p>
+              <p><strong>Example:</strong> ${example}</p>
+            </div>
+          `;
+          $("#result").html(resultHtml);
+        }).fail(function () {
+          $("#result").html(`
+            <div class="alert alert-danger">❌ No definition found for "${word}".</div>
+          `);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
